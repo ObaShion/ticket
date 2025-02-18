@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseMessaging
 
 class LotteryViewController: UIViewController {
     @IBOutlet var name: UILabel!
@@ -34,18 +35,22 @@ class LotteryViewController: UIViewController {
         
         guard let peopleNumber = Int(textField.text ?? "") else { return }
         
-        // 抽選申請内容
-        let lottery = LotteryModel(people_number: peopleNumber, event_id: event.id, device_id: DeviceIDManager().deviceId)
-        
-        // supabaseのlotteryテーブルにデータを挿入
+        // 非同期処理
         Task {
             do {
+                // FCMトークン
+                let fcmToken = Messaging.messaging().fcmToken
+                
+                // 抽選内容
+                let lottery = LotteryModel(people_number: peopleNumber, event_id: event.id, device_id: DeviceIDManager().deviceId, fcm_token: fcmToken!)
+                
+                // supabaseのlotteryテーブルにデータを挿入
                 try await supabase
                     .from("lottery")
                     .insert(lottery)
                     .execute()
             } catch {
-                dump(error)
+                print("Error during lottery submission: \(error)")
             }
         }
     }

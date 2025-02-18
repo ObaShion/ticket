@@ -1,2 +1,4 @@
 .env
 ticket/.env
+GoogleService-Info.plist
+ticket/GoogleService-Info.plist
